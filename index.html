@@ -276,12 +276,14 @@ function countQuery(t,rows){
 function entityWiseCategoryQuery(t,rows){
  const e=norm(ENTITY_LABEL);
  const plural=e.endsWith('s')?e:e+'s';
- const entityWise=new RegExp('(?:\\b'+e+'\\s*-?\\s*wise\\b|\\b'+plural+'\\s*-?\\s*wise\\b|\\bby\\s+'+e+'\\b|\\bfor\\s+each\\s+'+e+'\\b|\\bfor\\s+every\\s+'+e+'\\b)').test(t);
+ // Accept natural phrasing such as "portfolio return wise", "portfolio var wise",
+ // "portfolio signal wise", "department patients wise", etc.
+ const entityWise=new RegExp('(?:\\b'+e+'(?:\\s+[a-z0-9.%₹]+)*\\s*-?\\s*wise\\b|\\b'+plural+'(?:\\s+[a-z0-9.%₹]+)*\\s*-?\\s*wise\\b|\\bby\\s+'+e+'\\b|\\bfor\\s+each\\s+'+e+'\\b|\\bfor\\s+every\\s+'+e+'\\b)').test(t);
  if(!entityWise)return null;
- const ms=metricsMentioned(t);
- if(ms.length===1)return `<b>${esc(ms[0].label)} by ${esc(ENTITY_LABEL)}:</b><br>${rows.map(r=>`• <b>${esc(r[ENTITY_IDX])}</b> — ${fmt(num(r[ms[0].i]))}`).join('<br>')}`;
  const cat=categoryColumnFor(t);
  if(cat)return `<b>${esc(cat.label)} by ${esc(ENTITY_LABEL)}:</b><br>${rows.map(r=>`• <b>${esc(r[ENTITY_IDX])}</b> — ${esc(r[cat.i])}`).join('<br>')}`;
+ const ms=metricsMentioned(t);
+ if(ms.length===1)return `<b>${esc(ms[0].label)} by ${esc(ENTITY_LABEL)}:</b><br>${rows.map(r=>`• <b>${esc(r[ENTITY_IDX])}</b> — ${fmt(num(r[ms[0].i]))}`).join('<br>')}`;
  return null;
 }
 function listAll(t,rows){
